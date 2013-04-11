@@ -1,0 +1,41 @@
+int ledPin = 13;
+int inPin = 7;
+int val = 0;
+int statePin = A5;
+String inputString = "";
+String nullString = "";
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(ledPin, OUTPUT);
+  pinMode(statePin, OUTPUT);
+  digitalWrite(statePin, HIGH);
+  pinMode(inPin, INPUT);
+  inputString.reserve(200);
+}
+
+void loop(){
+  if(inputString=="0"){
+    digitalWrite(statePin,0);
+    inputString=nullString;
+  }
+  else if(inputString=="1"){
+    digitalWrite(statePin,1);
+    inputString=nullString;
+  }
+  else inputString=nullString;
+  val = digitalRead(inPin);
+  if (val == HIGH) {
+    digitalWrite(ledPin, 1);
+  } else {
+    digitalWrite(ledPin, 0);
+  }
+}
+
+void serialEvent() {
+  while (Serial.available() > 0) {
+    char inChar = (char)Serial.read();
+    inputString += inChar;
+    if (inChar == '\n') break;
+  }
+}
