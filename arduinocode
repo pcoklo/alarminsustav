@@ -1,7 +1,6 @@
 int ledPin = 13;
-int inPin = 7;
-int val = 0;
-int statePin = A5;
+int inPin = A5;
+int statePin = A4;
 String inputString = "";
 String nullString = "";
 
@@ -24,12 +23,10 @@ void loop(){
     inputString=nullString;
   }
   else inputString=nullString;
-  val = digitalRead(inPin);
-  if (val == HIGH) {
-    digitalWrite(ledPin, 1);
-  } else {
-    digitalWrite(ledPin, 0);
-  }
+  
+  if (digitalRead(inPin) == HIGH) digitalWrite(ledPin, 1); 
+  else digitalWrite(ledPin, 0);
+
 }
 
 void serialEvent() {
