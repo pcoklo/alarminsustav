@@ -30,7 +30,7 @@ void loop(){
       Serial.println("Alarm aktivan!");
     }
   }
-  
+
   delay(10);
   
   if (digitalRead(inPin) == HIGH) digitalWrite(ledPin, 1); 
