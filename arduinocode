@@ -1,29 +1,33 @@
 int ledPin = 13;
 int inPin = A5;
-int statePin = A4;
+int lockPin = A4;
 
 String inputString = "";
 String nullString = "";
 String keyString = "0300C49D207A";
 
 boolean flag1 = false;
+boolean flag2 = false;
 
 void setup() {
   Serial.begin(9600);
   pinMode(ledPin, OUTPUT);
-  pinMode(statePin, OUTPUT);
-  digitalWrite(statePin, HIGH);
+  pinMode(lockPin, INPUT_PULLUP);
   pinMode(inPin, INPUT);
 }
 
 void loop(){
   
   if(Serial.available()==0 && flag1){
+    flag1=false;
+    flag2=false;
     if(inputString == keyString){
       Serial.println("Autorizacija uspjesna!");
-      digitalWrite(statePin,0);
       Serial.println("Alarm deaktiviran!");
+      digitalWrite(ledPin, 0);
+      while(!flag2)if(digitalRead(lockPin)==0) flag2=true;
       inputString=nullString;
+      Serial.println("Alarm aktivan!");
     }
   }
   
