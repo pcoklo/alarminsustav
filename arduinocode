@@ -7,45 +7,43 @@ String nullString = "";
 String keyString = "0300C49D207A";
 
 boolean flag1 = false;
-boolean flag2 = false;
 
 void setup() {
   Serial.begin(9600);
   pinMode(ledPin, OUTPUT);
   pinMode(lockPin, INPUT_PULLUP);
-  pinMode(inPin, INPUT);
+  pinMode(inPin, INPUT_PULLUP);
 }
 
 void loop(){
   
-  if(Serial.available()==0 && flag1){
+  if(Serial.available()==0 && inputString!=nullString){
     flag1=false;
-    flag2=false;
     if(inputString == keyString){
       Serial.println("Autorizacija uspjesna!");
       Serial.println("Alarm deaktiviran!");
       digitalWrite(ledPin, 0);
-      while(!flag2)if(digitalRead(lockPin)==0) flag2=true;
+      while(!flag1){
+        Serial.read();
+        if(digitalRead(lockPin)==0) flag1=true;
+      }
       inputString=nullString;
       Serial.println("Alarm aktivan!");
     }
   }
-
   delay(10);
   
   if (digitalRead(inPin) == HIGH) digitalWrite(ledPin, 1); 
   else digitalWrite(ledPin, 0);
 
-}
+}//loop
 
-void serialEvent() {
-  if(!flag1){
-    flag1 = true;
-    inputString=nullString;
-    Serial.read();
-    do{
-      inputString +=char(Serial.read());
-      delay(10);
-    }while(inputString.length()<12);
-  }else Serial.read();
+void serialEvent() { 
+  Serial.read();
+  delay(10);
+  while(inputString.length()<12){
+    inputString +=char(Serial.read());
+    delay(10);
+  } 
+  Serial.read();
 }
