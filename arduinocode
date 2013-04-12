@@ -1,8 +1,12 @@
 int ledPin = 13;
 int inPin = A5;
 int statePin = A4;
+
 String inputString = "";
 String nullString = "";
+String keyString = "0300C49D207A";
+
+boolean flag1 = false;
 
 void setup() {
   Serial.begin(9600);
@@ -10,19 +14,20 @@ void setup() {
   pinMode(statePin, OUTPUT);
   digitalWrite(statePin, HIGH);
   pinMode(inPin, INPUT);
-  inputString.reserve(200);
 }
 
 void loop(){
-  if(inputString=="0"){
-    digitalWrite(statePin,0);
-    inputString=nullString;
+  
+  if(Serial.available()==0 && flag1){
+    if(inputString == keyString){
+      Serial.println("Autorizacija uspjesna!");
+      digitalWrite(statePin,0);
+      Serial.println("Alarm deaktiviran!");
+      inputString=nullString;
+    }
   }
-  else if(inputString=="1"){
-    digitalWrite(statePin,1);
-    inputString=nullString;
-  }
-  else inputString=nullString;
+  
+  delay(10);
   
   if (digitalRead(inPin) == HIGH) digitalWrite(ledPin, 1); 
   else digitalWrite(ledPin, 0);
@@ -30,9 +35,13 @@ void loop(){
 }
 
 void serialEvent() {
-  while (Serial.available() > 0) {
-    char inChar = (char)Serial.read();
-    inputString += inChar;
-    if (inChar == '\n') break;
-  }
+  if(!flag1){
+    flag1 = true;
+    inputString=nullString;
+    Serial.read();
+    do{
+      inputString +=char(Serial.read());
+      delay(10);
+    }while(inputString.length()<12);
+  }else Serial.read();
 }
