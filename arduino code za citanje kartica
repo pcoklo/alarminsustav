@@ -1,0 +1,29 @@
+String inputString = "";
+String nullString = "";
+boolean flag1 = false;
+
+void setup() {
+Serial.begin(9600);
+
+}
+
+void loop(){
+  
+  if(Serial.available()==0 && flag1){
+    flag1=false;
+    Serial.println(inputString);
+  }
+  delay(10);
+}
+
+void serialEvent() {
+  if(!flag1){
+    flag1 = true;
+    inputString=nullString;
+    Serial.read();
+    do{
+      inputString +=char(Serial.read());
+      delay(10);
+    }while(inputString.length()<12);
+  }else Serial.read();
+}
