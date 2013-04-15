@@ -3,20 +3,25 @@
 SoftwareSerial my1Serial(2,3); // RX, TX
 
 int ledPin = 13;
+int redLed = A3;
 int inPin = A5;
 int lockPin = A4;
 int led7Pin = 7;
 
 String inputString = "";
 String nullString = "";
-String key1String = "0300C49D207A", key2String = "AAA";
-
+String key1String = "0300C49D207A"; 
+String key2String = "AAA";
+String key3String = "BBB";
+String key4String = "CCC";
+String key5String = "GGG";
 
 boolean flag1 = true;
 
 void setup() {
   Serial.begin(9600);
   my1Serial.begin(9600);
+  pinMode(redLed, OUTPUT);
   pinMode(ledPin, OUTPUT);
   pinMode(led7Pin, OUTPUT);
   pinMode(lockPin, INPUT_PULLUP);
@@ -34,39 +39,36 @@ void loop(){
     digitalWrite(led7Pin, HIGH);
     my1Serial.read();
     
-    if(my1Serial.available()==0) unlock();
+    if(my1Serial.available()==0) check();
   }//if(my1Serial.available()>0)
   
-  if (Serial.available()==0 && inputString!=nullString) unlock();
-  if (digitalRead(lockPin) == LOW) flag1=true;
+  while (Serial.available() > 0) {
+    inputString +=char(Serial.read());
+    delay(10);
+    if(Serial.available()==0) check();
+  }
+  digitalWrite(redLed,flag1);
+  if (digitalRead(lockPin) == LOW && digitalRead(inPin) == LOW) flag1=true;
   if (digitalRead(inPin) == HIGH && flag1) digitalWrite(ledPin, 1); 
   else digitalWrite(ledPin, 0);
 }//loop
 
-void serialEvent() {
-  while (Serial.available() > 0) {
-    char inChar = (char)Serial.read();
-    inputString += inChar;
-    delay(10);
-  }
-}
-
-void unlock(){
+void check(){
   digitalWrite(led7Pin, LOW);
-  if(inputString == key1String){
-    Serial.println("Autorizacija uspjesna!");
-    Serial.println("Alarm deaktiviran!");
-    flag1=false;
-    inputString=nullString;
-  }//if(inputString == key1String)
-  else if(inputString == key2String){
-    Serial.println("Autorizacija uspjesna!");
-    Serial.println("Alarm deaktiviran!");
-    flag1=false;
-    inputString=nullString;
-  }//else if(inputString == key2String)
+  if(inputString == key1String) unlock();
+  else if(inputString == key2String) unlock();
+  else if(inputString == key3String) unlock();
+  else if(inputString == key4String) unlock();
+  else if(inputString == key5String) unlock();
   else{
     Serial.println("Autorizacija neuspjesna!");
     inputString=nullString;
   }//else
-}//unlock()
+}//check()
+
+void unlock(){
+  Serial.println("Autorizacija uspjesna!");
+  Serial.println("Alarm deaktiviran!");
+  flag1=false;
+  inputString=nullString;
+}
