@@ -107,6 +107,7 @@ void check(){
   else {
     flag1=true;
     Serial.println("Alarm ukljucen!");
+    inputString=nullString;
   }
 }//check()
 
