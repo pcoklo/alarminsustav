@@ -1,7 +1,6 @@
 #include <SoftwareSerial.h>
-
-SoftwareSerial my1Serial(2,3); // RX, TX
-SoftwareSerial my2Serial(4,5);
+ 
+SoftwareSerial my2Serial(3, 2); // RX, TX pins
 
 int ledPin = 13;
 int wLed = A1;
@@ -19,7 +18,7 @@ String key4String = "CCC";
 String key5String = "GGG";
 
 boolean flag1 = true;
-boolean flag2 = false;
+//boolean flag2 = false;
 boolean flag3 = true;
 
 boolean key1=false;
@@ -30,7 +29,6 @@ boolean key5=false;
 
 void setup() {
   Serial.begin(9600);
-  my1Serial.begin(9600);
   my2Serial.begin(4800);
   pinMode(ledPin, OUTPUT);
   pinMode(wLed, OUTPUT);
@@ -42,7 +40,7 @@ void setup() {
 
 void loop(){
   
-  if(my1Serial.available()>0){
+/*  if(my1Serial.available()>0){
     Serial.println("rfid skonto");
     flag2 = true;
     my1Serial.read();
@@ -61,7 +59,14 @@ void loop(){
     inputString +=char(Serial.read());
     delay(10);
     if(Serial.available()==0) check();
+  }*/
+  
+  if(Serial.available()==0 && !flag1){
+    flag1=true;
+    check();
+    Serial.println(inputString);
   }
+  delay(10);
   
   
   digitalWrite(rLed, flag1);
@@ -69,7 +74,7 @@ void loop(){
   if (digitalRead(doorPin) == HIGH && flag1 && flag3) sendmsg(); 
   else if (digitalRead(doorPin) == LOW) flag3 = true;
   
-  if (flag2 && my1Serial.available()==0){
+/*  if (flag2 && my1Serial.available()==0){
     digitalWrite(yLed, HIGH);
     for(int i=0;i<2000;i++){
       my1Serial.read();
@@ -77,8 +82,20 @@ void loop(){
     }
     digitalWrite(yLed, LOW);
     flag2=false;
-  }
+  }*/
 }//loop
+
+void serialEvent() {
+  if(flag1){
+    flag1 = false;
+    inputString=nullString;
+    Serial.read();
+    do{
+      inputString +=char(Serial.read());
+      delay(10);
+    }while(inputString.length()<12);
+  }else Serial.read();
+}
 
 void check(){
   digitalWrite(wLed, LOW);
