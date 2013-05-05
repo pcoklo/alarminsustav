@@ -1,6 +1,7 @@
 #include <SoftwareSerial.h>
 
 SoftwareSerial my1Serial(2,3); // RX, TX
+SoftwareSerial my2Serial(4,5);
 
 int ledPin = 13;
 int wLed = A1;
@@ -19,6 +20,7 @@ String key5String = "GGG";
 
 boolean flag1 = true;
 boolean flag2 = false;
+boolean flag3 = true;
 
 boolean key1=false;
 boolean key2=false;
@@ -29,6 +31,7 @@ boolean key5=false;
 void setup() {
   Serial.begin(9600);
   my1Serial.begin(9600);
+  my2Serial.begin(4800);
   pinMode(ledPin, OUTPUT);
   pinMode(wLed, OUTPUT);
   pinMode(yLed, OUTPUT);
@@ -40,6 +43,7 @@ void setup() {
 void loop(){
   
   if(my1Serial.available()>0){
+    Serial.println("rfid skonto");
     flag2 = true;
     my1Serial.read();
     delay(10);
@@ -62,8 +66,8 @@ void loop(){
   
   digitalWrite(rLed, flag1);
   digitalWrite(gLed,!flag1);
-  if (digitalRead(doorPin) == HIGH && flag1) digitalWrite(ledPin, 1); 
-  else digitalWrite(ledPin, 0);
+  if (digitalRead(doorPin) == HIGH && flag1 && flag3) sendmsg(); 
+  else if (digitalRead(doorPin) == LOW) flag3 = true;
   
   if (flag2 && my1Serial.available()==0){
     digitalWrite(yLed, HIGH);
@@ -118,4 +122,37 @@ void unlock(){
     flag1=false;
   }
   inputString=nullString;
+}
+
+void sendmsg (){
+  
+  digitalWrite(ledPin, 1); // Turn LED on.
+  my2Serial.println("AT"); // Sends AT command to wake up cell phone
+  Serial.println("Probudio telefon!");
+  delay(500);
+  my2Serial.println("AT+CMGF=1"); // Puts phone into SMS mode
+  Serial.println("Stavio ga u sms mod");
+  delay(1000); // Wait a second
+  my2Serial.println("AT+CMGW=\"+14165551234\""); // YOUR NUMBER HERE; Creates new message to number
+  Serial.println("Odabrao broj");
+  delay(1000);
+  my2Serial.print("Sent from my Arduino."); // Message contents
+  Serial.println("Upisao poruku");
+  delay(1000);
+  my2Serial.write(byte(26)); // (signals end of message)
+  Serial.println("Signalirao kraj poruke");
+  delay(1000);
+  my2Serial.println("AT+CMSS=1"); // Sends message at index of 1
+  Serial.println("Saljem poruku");
+  digitalWrite(ledPin, 0); // Turn LED off
+  delay(250);
+  digitalWrite(ledPin, 1); // Turn LED on.
+  delay(10000); // Give the phone time to send the SMS
+  my2Serial.println("AT+CMGD=1"); // Deletes message at index of 1
+  Serial.println("Poruka obrisana");
+  Serial.println("Kraj");
+  digitalWrite(ledPin, 0); // Turn LED off.
+  delay(250);
+  flag3 = false;
+  
 }
