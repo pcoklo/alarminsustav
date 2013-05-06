@@ -1,6 +1,6 @@
 #include <SoftwareSerial.h>
- 
-SoftwareSerial my2Serial(3, 2); // RX, TX pins
+
+SoftwareSerial my2Serial(4,5);
 
 int ledPin = 13;
 int wLed = A1;
@@ -12,13 +12,13 @@ int doorPin = A5;
 String inputString = "";
 String nullString = "";
 String key1String = "0300C49D207A"; 
-String key2String = "AAA";
-String key3String = "BBB";
-String key4String = "CCC";
-String key5String = "GGG";
+String key2String = "AAAAAAAAAAAA";
+String key3String = "BBBBBBBBBBBB";
+String key4String = "CCCCCCCCCCCC";
+String key5String = "GGGGGGGGGGGG";
 
 boolean flag1 = true;
-//boolean flag2 = false;
+boolean flag2 = false;
 boolean flag3 = true;
 
 boolean key1=false;
@@ -40,62 +40,42 @@ void setup() {
 
 void loop(){
   
-/*  if(my1Serial.available()>0){
-    Serial.println("rfid skonto");
+  if(Serial.available()>0){
     flag2 = true;
-    my1Serial.read();
+    Serial.read();
     delay(10);
     while(inputString.length()<12){
-      inputString +=char(my1Serial.read());
+      inputString +=char(Serial.read());
       delay(10);
     }
     digitalWrite(wLed, HIGH);
-    my1Serial.read();
+    Serial.read();
     
-    if(my1Serial.available()==0) check();
-  }//if(my1Serial.available()>0)
-  
+    if(Serial.available()==0) check();
+  }//if(Serial.available()>0)
+/*  
   while (Serial.available() > 0) {
     inputString +=char(Serial.read());
     delay(10);
     if(Serial.available()==0) check();
-  }*/
-  
-  if(Serial.available()==0 && !flag1){
-    flag1=true;
-    check();
-    Serial.println(inputString);
   }
-  delay(10);
-  
+  */
   
   digitalWrite(rLed, flag1);
   digitalWrite(gLed,!flag1);
   if (digitalRead(doorPin) == HIGH && flag1 && flag3) sendmsg(); 
   else if (digitalRead(doorPin) == LOW) flag3 = true;
   
-/*  if (flag2 && my1Serial.available()==0){
+  if (flag2 && Serial.available()==0){
     digitalWrite(yLed, HIGH);
     for(int i=0;i<2000;i++){
-      my1Serial.read();
+      Serial.read();
       delay(1);
     }
     digitalWrite(yLed, LOW);
     flag2=false;
-  }*/
+  }
 }//loop
-
-void serialEvent() {
-  if(flag1){
-    flag1 = false;
-    inputString=nullString;
-    Serial.read();
-    do{
-      inputString +=char(Serial.read());
-      delay(10);
-    }while(inputString.length()<12);
-  }else Serial.read();
-}
 
 void check(){
   digitalWrite(wLed, LOW);
@@ -150,7 +130,7 @@ void sendmsg (){
   my2Serial.println("AT+CMGF=1"); // Puts phone into SMS mode
   Serial.println("Stavio ga u sms mod");
   delay(1000); // Wait a second
-  my2Serial.println("AT+CMGW=\"+14165551234\""); // YOUR NUMBER HERE; Creates new message to number
+  my2Serial.println("AT+CMGW=\"+14165551234\""); //
   Serial.println("Odabrao broj");
   delay(1000);
   my2Serial.print("Sent from my Arduino."); // Message contents
