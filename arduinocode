@@ -1,6 +1,6 @@
 #include <SoftwareSerial.h>
 
-SoftwareSerial my2Serial(4,5);
+SoftwareSerial mySerial(3,2);
 
 int ledPin = 13;
 int wLed = A1;
@@ -11,6 +11,7 @@ int doorPin = A5;
 
 String inputString = "";
 String nullString = "";
+String STRING = "ALARM!";
 String key1String = "0300C49D207A"; 
 String key2String = "AAAAAAAAAAAA";
 String key3String = "BBBBBBBBBBBB";
@@ -29,7 +30,7 @@ boolean key5=false;
 
 void setup() {
   Serial.begin(9600);
-  my2Serial.begin(4800);
+  mySerial.begin(4800);
   pinMode(ledPin, OUTPUT);
   pinMode(wLed, OUTPUT);
   pinMode(yLed, OUTPUT);
@@ -124,30 +125,22 @@ void unlock(){
 void sendmsg (){
   
   digitalWrite(ledPin, 1); // Turn LED on.
-  my2Serial.println("AT"); // Sends AT command to wake up cell phone
-  Serial.println("Probudio telefon!");
+  mySerial.println("AT"); // Sends AT command to wake up cell phone
   delay(500);
-  my2Serial.println("AT+CMGF=1"); // Puts phone into SMS mode
-  Serial.println("Stavio ga u sms mod");
+  mySerial.println("AT+CMGF=1"); // Puts phone into SMS mode
   delay(1000); // Wait a second
-  my2Serial.println("AT+CMGW=\"+14165551234\""); //
-  Serial.println("Odabrao broj");
+  mySerial.println("AT+CMGW=\"+385919429140\""); // YOUR NUMBER HERE; Creates new message to number
   delay(1000);
-  my2Serial.print("Sent from my Arduino."); // Message contents
-  Serial.println("Upisao poruku");
+  mySerial.print(STRING); // Message contents
   delay(1000);
-  my2Serial.write(byte(26)); // (signals end of message)
-  Serial.println("Signalirao kraj poruke");
+  mySerial.write(byte(26)); // (signals end of message)
   delay(1000);
-  my2Serial.println("AT+CMSS=1"); // Sends message at index of 1
-  Serial.println("Saljem poruku");
+  mySerial.println("AT+CMSS=1"); // Sends message at index of 1
   digitalWrite(ledPin, 0); // Turn LED off
   delay(250);
   digitalWrite(ledPin, 1); // Turn LED on.
   delay(10000); // Give the phone time to send the SMS
-  my2Serial.println("AT+CMGD=1"); // Deletes message at index of 1
-  Serial.println("Poruka obrisana");
-  Serial.println("Kraj");
+  mySerial.println("AT+CMGD=1"); // Deletes message at index of 1
   digitalWrite(ledPin, 0); // Turn LED off.
   delay(250);
   flag3 = false;
