@@ -134,7 +134,7 @@ void sendmsg (){
   delay(500);
   my2Serial.println("AT+CMGF=1");
   delay(1000);
-  my2Serial.println("AT+CMGW=\"+14165551234\"");
+  my2Serial.println("AT+CMGW=\"+385919429140\"");
   delay(1000);
   my2Serial.print(msg1String);
   delay(1000);
