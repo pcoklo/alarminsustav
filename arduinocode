@@ -1,5 +1,8 @@
 #include <SoftwareSerial.h>
 
+SoftwareSerial my1Serial(4,4); // RX, TX
+SoftwareSerial my2Serial(3,2);
+
 int ledPin = 13;
 int wLed = A1;
 int yLed = A2;
@@ -9,12 +12,12 @@ int doorPin = A5;
 
 String inputString = "";
 String nullString = "";
-String STRING = "ALARM!";
+String msg1String = "ALARM!";
 String key1String = "0300C49D207A"; 
-String key2String = "AAAAAAAAAAAA";
-String key3String = "BBBBBBBBBBBB";
-String key4String = "CCCCCCCCCCCC";
-String key5String = "GGGGGGGGGGGG";
+String key2String = "AAA";
+String key3String = "BBB";
+String key4String = "CCC";
+String key5String = "GGG";
 
 boolean flag1 = true;
 boolean flag2 = false;
@@ -28,7 +31,7 @@ boolean key5=false;
 
 void setup() {
   Serial.begin(9600);
-  
+  my1Serial.begin(9600);
   pinMode(ledPin, OUTPUT);
   pinMode(wLed, OUTPUT);
   pinMode(yLed, OUTPUT);
@@ -39,36 +42,36 @@ void setup() {
 
 void loop(){
   
-  if(Serial.available()>0){
+  if(my1Serial.available()>0){
     flag2 = true;
-    Serial.read();
+    my1Serial.read();
     delay(10);
     while(inputString.length()<12){
-      inputString +=char(Serial.read());
+      inputString +=char(my1Serial.read());
       delay(10);
     }
     digitalWrite(wLed, HIGH);
-    Serial.read();
+    my1Serial.read();
     
-    if(Serial.available()==0) check();
-  }//if(Serial.available()>0)
-/*  
+    if(my1Serial.available()==0) check();
+  }//if(my1Serial.available()>0)
+  
   while (Serial.available() > 0) {
     inputString +=char(Serial.read());
     delay(10);
     if(Serial.available()==0) check();
   }
-  */
+  
   
   digitalWrite(rLed, flag1);
   digitalWrite(gLed,!flag1);
   if (digitalRead(doorPin) == HIGH && flag1 && flag3) sendmsg(); 
   else if (digitalRead(doorPin) == LOW) flag3 = true;
   
-  if (flag2 && Serial.available()==0){
+  if (flag2 && my1Serial.available()==0){
     digitalWrite(yLed, HIGH);
     for(int i=0;i<2000;i++){
-      Serial.read();
+      my1Serial.read();
       delay(1);
     }
     digitalWrite(yLed, LOW);
@@ -79,34 +82,34 @@ void loop(){
 void check(){
   digitalWrite(wLed, LOW);
   if(inputString == key1String){
-//    Serial.println("Autorizacija uspjesna!");
+    Serial.println("Autorizacija uspjesna!");
     key1 = !key1;
   }
   else if(inputString == key2String){
-//    Serial.println("Autorizacija uspjesna!"); 
+    Serial.println("Autorizacija uspjesna!"); 
     key2 = !key2;
   }
   else if(inputString == key3String){
-//    Serial.println("Autorizacija uspjesna!");
+    Serial.println("Autorizacija uspjesna!");
     key3 = !key3;
   }
   else if(inputString == key4String){
-//    Serial.println("Autorizacija uspjesna!");
+    Serial.println("Autorizacija uspjesna!");
     key4 = !key4;
   }
   else if(inputString == key5String){
-//    Serial.println("Autorizacija uspjesna!");
+    Serial.println("Autorizacija uspjesna!");
     key5 = !key5;
   }
   else{
-//    Serial.println("Autorizacija neuspjesna!");
+    Serial.println("Autorizacija neuspjesna!");
     inputString=nullString;
   }//else
   
   if(key1+key2+key3+key4+key5>0) unlock();
   else {
     flag1=true;
-//    Serial.println("Alarm ukljucen!");
+    Serial.println("Alarm ukljucen!");
     inputString=nullString;
   }
 }//check()
@@ -114,7 +117,7 @@ void check(){
 void unlock(){
   
   if(flag1){
-//    Serial.println("Alarm iskuljucen!");
+    Serial.println("Alarm iskuljucen!");
     flag1=false;
   }
   inputString=nullString;
@@ -122,27 +125,30 @@ void unlock(){
 
 void sendmsg (){
   
-  SoftwareSerial mySerial(3,2);
-  mySerial.begin(4800);
+  my2Serial.begin(4800);
+  delay(10);
+  Serial.println(msg1String);
   
-  digitalWrite(ledPin, 1); // Turn LED on.
-  mySerial.println("AT"); // Sends AT command to wake up cell phone
+  digitalWrite(ledPin, 1);
+  my2Serial.println("AT");
   delay(500);
-  mySerial.println("AT+CMGF=1"); // Puts phone into SMS mode
-  delay(1000); // Wait a second
-  mySerial.println("AT+CMGW=\"+385919429140\""); // YOUR NUMBER HERE; Creates new message to number
+  my2Serial.println("AT+CMGF=1");
   delay(1000);
-  mySerial.print(STRING); // Message contents
+  my2Serial.println("AT+CMGW=\"+14165551234\"");
   delay(1000);
-  mySerial.write(byte(26)); // (signals end of message)
+  my2Serial.print(msg1String);
   delay(1000);
-  mySerial.println("AT+CMSS=1"); // Sends message at index of 1
-  digitalWrite(ledPin, 0); // Turn LED off
+  my2Serial.write(byte(26));
+  delay(1000);
+  my2Serial.println("AT+CMSS=1");
+  Serial.println("Poruka poslana");
+  digitalWrite(ledPin, 0);
   delay(250);
-  digitalWrite(ledPin, 1); // Turn LED on.
-  delay(5000); // Give the phone time to send the SMS
-  mySerial.println("AT+CMGD=1"); // Deletes message at index of 1
-  digitalWrite(ledPin, 0); // Turn LED off.
+  digitalWrite(ledPin, 1);
+  delay(10000);
+  my2Serial.println("AT+CMGD=1");
+  digitalWrite(ledPin, 0);
+  my1Serial.begin(9600);
   delay(250);
   flag3 = false;
   
