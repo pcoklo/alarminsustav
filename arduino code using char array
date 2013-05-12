@@ -1,0 +1,40 @@
+#include <SoftwareSerial.h>
+SoftwareSerial my1Serial(4,4);
+unsigned char key[10][12];
+
+boolean flag1 = true;
+boolean flag2 = false;
+boolean flag3 = true;
+
+void setup(){
+  Serial.begin(9600);
+  my1Serial.begin(9600);
+}
+void loop(){
+  
+  
+  if(my1Serial.available()>0){
+    my1Serial.read();
+    delay(10);
+    
+    for(int i=0;i<12;i++){
+      key[0][i]=char(my1Serial.read());
+      delay(10);
+    }
+    while(my1Serial.available()>0) my1Serial.read();
+    flag1=true;
+ 
+  }
+
+  if (flag1 && my1Serial.available()==0){
+    for(unsigned int i=0;i<12;i++){
+      Serial.print(char(key[0][i]));
+    }
+    Serial.println();
+    for(int i=0;i<3000;i++){
+      my1Serial.read();
+      delay(1);
+    }
+    flag1=false;
+  }
+}
